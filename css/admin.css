@@ -1,0 +1,96 @@
+.admin-page {
+  background:
+    linear-gradient(105deg, #f4eee6, #fffaf3 48%, #e4d4c1),
+    var(--paper);
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 74px;
+  padding: 0 4vw;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 250, 243, 0.9);
+}
+
+.admin-store-link {
+  display: inline-grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.admin-main {
+  padding: clamp(2rem, 5vw, 5rem) 4vw;
+}
+
+.admin-hero {
+  margin-bottom: 2rem;
+}
+
+.admin-hero h1 {
+  max-width: 10ch;
+  font-size: clamp(4rem, 10vw, 8rem);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-panel,
+.admin-actions-panel {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 1px solid var(--line);
+  background: rgba(255, 250, 243, 0.82);
+}
+
+.products-admin {
+  grid-column: 1 / -1;
+}
+
+#adminProducts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.product-admin-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: var(--vellum);
+}
+
+.product-admin-card img,
+.admin-preview {
+  width: 100%;
+  aspect-ratio: 1.2 / 0.82;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.admin-actions-panel {
+  grid-column: 1 / -1;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+}
+
+#adminStatus {
+  margin: 0;
+  color: var(--hide);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .admin-grid,
+  #adminProducts,
+  .admin-actions-panel {
+    grid-template-columns: 1fr;
+  }
+}

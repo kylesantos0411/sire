@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIRE Admin Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body class="admin-page">
+    <header class="admin-topbar">
+      <a class="brand" href="index.html">SIRE.</a>
+      <a class="ghost admin-store-link" href="index.html">View Store</a>
+    </header>
+
+    <main class="admin-main">
+      <section class="admin-hero">
+        <p class="eyebrow">Admin editor</p>
+        <h1>Edit the live storefront.</h1>
+      </section>
+
+      <form id="adminForm" class="admin-grid">
+        <section class="admin-panel">
+          <p class="eyebrow">Brand</p>
+          <label>Brand name<input id="adminBrandName" /></label>
+          <label>Hero eyebrow<input id="adminHeroEyebrow" /></label>
+          <label>Hero title<input id="adminHeroTitle" /></label>
+          <label>Hero copy<textarea id="adminHeroCopy"></textarea></label>
+          <label>
+            Hero image
+            <input id="adminHeroImage" type="file" accept="image/*" />
+          </label>
+          <img class="admin-preview" id="adminHeroPreview" alt="Hero preview" />
+        </section>
+
+        <section class="admin-panel">
+          <p class="eyebrow">About Us</p>
+          <label>About title<input id="adminAboutTitle" /></label>
+          <label>About copy<textarea id="adminAboutCopy"></textarea></label>
+          <label>
+            About image
+            <input id="adminAboutImage" type="file" accept="image/*" />
+          </label>
+          <img class="admin-preview" id="adminAboutPreview" alt="About preview" />
+        </section>
+
+        <section class="admin-panel products-admin">
+          <p class="eyebrow">Products</p>
+          <div id="adminProducts"></div>
+        </section>
+
+        <section class="admin-actions-panel">
+          <button class="primary" type="submit">Save Changes</button>
+          <button class="ghost" id="resetAdmin" type="button">Reset Storefront</button>
+          <p id="adminStatus" role="status"></p>
+        </section>
+      </form>
+    </main>
+
+    <script type="module" src="js/admin.mjs"></script>
+  </body>
+</html>

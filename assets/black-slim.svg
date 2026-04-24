@@ -1,0 +1,23 @@
+<svg width="900" height="650" viewBox="0 0 900 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="black" x1="243" y1="147" x2="659" y2="491" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3A352F"/>
+      <stop offset=".5" stop-color="#171512"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="5" seed="21"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend mode="screen" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect width="900" height="650" fill="#E8E1D7"/>
+  <ellipse cx="450" cy="530" rx="234" ry="38" fill="#111" opacity=".19"/>
+  <rect x="235" y="147" width="430" height="352" rx="38" fill="url(#black)"/>
+  <rect x="263" y="177" width="374" height="292" rx="24" filter="url(#grain)" opacity=".16"/>
+  <path d="M279 206h318M279 441h318" stroke="#C08A52" stroke-width="4" stroke-dasharray="9 14" opacity=".76"/>
+  <path d="M298 244h266" stroke="#0A0908" stroke-width="10" opacity=".65"/>
+  <path d="M299 292h302" stroke="#0A0908" stroke-width="10" opacity=".5"/>
+  <path d="M299 340h240" stroke="#0A0908" stroke-width="10" opacity=".5"/>
+  <circle cx="592" cy="386" r="21" stroke="#B67B45" stroke-width="5"/>
+</svg>

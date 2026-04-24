@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIRE. Orders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      .orders-container {
+        max-width: 800px;
+        margin: 120px auto 60px;
+        padding: 0 5%;
+      }
+      .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .order-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 2rem;
+      }
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .order-header h3 {
+        font-family: var(--font-mono);
+        font-size: 1.125rem;
+        color: var(--text);
+        margin: 0 0 0.5rem 0;
+      }
+      .order-date {
+        color: var(--text-light);
+        font-size: 0.875rem;
+      }
+      .order-status {
+        background: var(--primary);
+        color: var(--surface);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+      }
+      .order-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9375rem;
+      }
+      .order-item-name {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .order-item-meta {
+        color: var(--text-light);
+        font-size: 0.875rem;
+      }
+      .order-totals {
+        border-top: 1px dashed var(--border);
+        padding-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .order-totals div {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9375rem;
+        color: var(--text-light);
+      }
+      .order-totals .grand-total {
+        color: var(--text);
+        font-weight: 700;
+        font-size: 1.125rem;
+        margin-top: 0.5rem;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="SIRE home">SIRE.</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#catalog">Shop</a>
+        <a href="index.html#about">About Us</a>
+      </nav>
+    </header>
+
+    <main class="orders-container">
+      <div class="section-heading">
+        <p class="eyebrow">Your purchases</p>
+        <h2>Order History.</h2>
+      </div>
+      
+      <div id="ordersList" class="orders-list">
+        <!-- Orders will be injected here -->
+      </div>
+    </main>
+
+    <script>
+      (function() {
+        function formatMoney(cents) {
+          return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP",
+          }).format(cents / 100);
+        }
+
+        function formatDate(dateString) {
+          if (!dateString) return "Recently";
+          return new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }).format(new Date(dateString));
+        }
+
+        const ordersListEl = document.getElementById("ordersList");
+        
+        try {
+          const rawOrders = localStorage.getItem("sire-orders");
+          const orders = rawOrders ? JSON.parse(rawOrders) : [];
+          
+          if (orders.length === 0) {
+            ordersListEl.innerHTML = `
+              <div class="empty-state">
+                <p>No orders placed yet.</p>
+                <br>
+                <a href="index.html#catalog" class="ghost" style="display:inline-block">Shop Now</a>
+              </div>
+            `;
+            return;
+          }
+
+          ordersListEl.innerHTML = orders.map(order => `
+            <article class="order-card">
+              <div class="order-header">
+                <div>
+                  <h3>${order.id}</h3>
+                  <div class="order-date">${formatDate(order.date)}</div>
+                </div>
+                <div class="order-status">${order.status || "Processing"}</div>
+              </div>
+              
+              <div class="order-items">
+                ${(order.items || []).map(item => `
+                  <div class="order-item">
+                    <div>
+                      <div class="order-item-name">${item.name}</div>
+                      <div class="order-item-meta">Color: ${item.color} &times; ${item.quantity}</div>
+                    </div>
+                    <div>${formatMoney(item.price * item.quantity)}</div>
+                  </div>
+                `).join("")}
+              </div>
+              
+              <div class="order-totals">
+                <div>
+                  <span>Payment Method</span>
+                  <span>${order.paymentMethod}</span>
+                </div>
+                <div>
+                  <span>Subtotal</span>
+                  <span>${formatMoney(order.subtotal || 0)}</span>
+                </div>
+                <div>
+                  <span>Shipping</span>
+                  <span>${formatMoney(order.shipping || 0)}</span>
+                </div>
+                <div class="grand-total">
+                  <span>Total</span>
+                  <span>${formatMoney(order.total || 0)}</span>
+                </div>
+              </div>
+            </article>
+          `).join("");
+
+        } catch (e) {
+          ordersListEl.innerHTML = `<p class="empty-state">Error loading orders.</p>`;
+        }
+      })();
+    </script>
+  </body>
+</html>
