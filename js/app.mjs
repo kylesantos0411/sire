@@ -99,6 +99,10 @@ checkoutForm.addEventListener("submit", (event) => {
   });
   const paymentInfo = getSellerPaymentInfo(paymentMethod);
 
+  const existingOrders = JSON.parse(localStorage.getItem("sire-orders") || "[]");
+  existingOrders.unshift(order);
+  localStorage.setItem("sire-orders", JSON.stringify(existingOrders));
+
   orderTotal.textContent = formatMoney(order.total);
   orderNumber.textContent = `#${order.id}`;
   orderPayment.textContent = order.paymentMethod;
@@ -107,6 +111,33 @@ checkoutForm.addEventListener("submit", (event) => {
   renderPaymentDetails(paymentInfo);
   paymentModal.hidden = !paymentInfo.requiresPopup;
   confirmation.scrollIntoView({ behavior: "smooth" });
+
+  const simulationInterval = setInterval(() => {
+    const now = Date.now();
+    const orderTime = new Date(order.date).getTime();
+    const seconds = (now - orderTime) / 1000;
+    
+    let status = "Processing";
+    if (seconds >= 60) status = "Delivered";
+    else if (seconds >= 40) status = "Shipped";
+    else if (seconds >= 20) status = "Packed";
+    
+    if (order.status !== status) {
+      order.status = status;
+      renderOrderProcess(order.status);
+      
+      const orders = JSON.parse(localStorage.getItem("sire-orders") || "[]");
+      const idx = orders.findIndex(o => o.id === order.id);
+      if (idx !== -1) {
+        orders[idx].status = status;
+        localStorage.setItem("sire-orders", JSON.stringify(orders));
+      }
+      
+      if (status === "Delivered") {
+        clearInterval(simulationInterval);
+      }
+    }
+  }, 2000);
 });
 
 [paymentClose, paymentDone].forEach((button) => {

@@ -47,13 +47,33 @@
         font-size: 0.875rem;
       }
       .order-status {
-        background: var(--primary);
-        color: var(--surface);
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 0.85rem;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        font-weight: 700;
+        font-weight: 800;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .status-processing {
+        background: var(--paper);
+        color: var(--muted);
+        border: 1px solid var(--line);
+      }
+      .status-packed {
+        background: var(--brass);
+        color: #fff;
+        border: 1px solid var(--brass);
+      }
+      .status-shipped {
+        background: var(--hide);
+        color: #fff;
+        border: 1px solid var(--hide);
+      }
+      .status-delivered {
+        background: var(--moss);
+        color: #fff;
+        border: 1px solid var(--moss);
       }
       .order-items {
         display: flex;
@@ -130,78 +150,121 @@
           }).format(cents / 100);
         }
 
-        function formatDate(dateString) {
+        function formatDateAndTime(dateString, extraSeconds = 0) {
           if (!dateString) return "Recently";
+          const date = new Date(new Date(dateString).getTime() + extraSeconds * 1000);
           return new Intl.DateTimeFormat("en-US", {
             year: "numeric",
-            month: "long",
+            month: "short",
             day: "numeric",
-          }).format(new Date(dateString));
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit"
+          }).format(date);
         }
 
         const ordersListEl = document.getElementById("ordersList");
-        
-        try {
-          const rawOrders = localStorage.getItem("sire-orders");
-          const orders = rawOrders ? JSON.parse(rawOrders) : [];
-          
-          if (orders.length === 0) {
-            ordersListEl.innerHTML = `
-              <div class="empty-state">
-                <p>No orders placed yet.</p>
-                <br>
-                <a href="index.html#catalog" class="ghost" style="display:inline-block">Shop Now</a>
-              </div>
-            `;
-            return;
-          }
 
-          ordersListEl.innerHTML = orders.map(order => `
-            <article class="order-card">
-              <div class="order-header">
-                <div>
-                  <h3>${order.id}</h3>
-                  <div class="order-date">${formatDate(order.date)}</div>
-                </div>
-                <div class="order-status">${order.status || "Processing"}</div>
-              </div>
-              
-              <div class="order-items">
-                ${(order.items || []).map(item => `
-                  <div class="order-item">
-                    <div>
-                      <div class="order-item-name">${item.name}</div>
-                      <div class="order-item-meta">Color: ${item.color} &times; ${item.quantity}</div>
-                    </div>
-                    <div>${formatMoney(item.price * item.quantity)}</div>
-                  </div>
-                `).join("")}
-              </div>
-              
-              <div class="order-totals">
-                <div>
-                  <span>Payment Method</span>
-                  <span>${order.paymentMethod}</span>
-                </div>
-                <div>
-                  <span>Subtotal</span>
-                  <span>${formatMoney(order.subtotal || 0)}</span>
-                </div>
-                <div>
-                  <span>Shipping</span>
-                  <span>${formatMoney(order.shipping || 0)}</span>
-                </div>
-                <div class="grand-total">
-                  <span>Total</span>
-                  <span>${formatMoney(order.total || 0)}</span>
-                </div>
-              </div>
-            </article>
-          `).join("");
-
-        } catch (e) {
-          ordersListEl.innerHTML = `<p class="empty-state">Error loading orders.</p>`;
+        function getDynamicStatus(order) {
+           const now = Date.now();
+           const orderTime = new Date(order.date).getTime();
+           const seconds = (now - orderTime) / 1000;
+           
+           if (seconds >= 60) return { status: "Delivered", extraSeconds: 60 };
+           if (seconds >= 40) return { status: "Shipped", extraSeconds: 40 };
+           if (seconds >= 20) return { status: "Packed", extraSeconds: 20 };
+           return { status: "Processing", extraSeconds: 0 };
         }
+        
+        function renderOrders() {
+          try {
+            const rawOrders = localStorage.getItem("sire-orders");
+            let orders = rawOrders ? JSON.parse(rawOrders) : [];
+            let needsUpdate = false;
+            
+            if (orders.length === 0) {
+              ordersListEl.innerHTML = `
+                <div class="empty-state">
+                  <p>No orders placed yet.</p>
+                  <br>
+                  <a href="index.html#catalog" class="ghost" style="display:inline-block">Shop Now</a>
+                </div>
+              `;
+              return;
+            }
+
+            orders = orders.map(order => {
+              const currentInfo = getDynamicStatus(order);
+              if (order.status !== currentInfo.status) {
+                order.status = currentInfo.status;
+                order.statusExtraSeconds = currentInfo.extraSeconds;
+                needsUpdate = true;
+              }
+              // Retrofit existing orders
+              if (order.statusExtraSeconds === undefined) {
+                order.statusExtraSeconds = currentInfo.extraSeconds;
+                needsUpdate = true;
+              }
+              return order;
+            });
+
+            if (needsUpdate) {
+               localStorage.setItem("sire-orders", JSON.stringify(orders));
+            }
+
+            ordersListEl.innerHTML = orders.map(order => `
+              <article class="order-card">
+                <div class="order-header">
+                  <div>
+                    <h3>${order.id}</h3>
+                    <div class="order-date">Ordered: ${formatDateAndTime(order.date)}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div class="order-status status-${(order.status || "Processing").toLowerCase()}">${order.status || "Processing"}</div>
+                    <div class="order-date" style="margin-top: 6px;">At: ${formatDateAndTime(order.date, order.statusExtraSeconds)}</div>
+                  </div>
+                </div>
+                
+                <div class="order-items">
+                  ${(order.items || []).map(item => `
+                    <div class="order-item">
+                      <div>
+                        <div class="order-item-name">${item.name}</div>
+                        <div class="order-item-meta">Color: ${item.color} &times; ${item.quantity}</div>
+                      </div>
+                      <div>${formatMoney(item.price * item.quantity)}</div>
+                    </div>
+                  `).join("")}
+                </div>
+                
+                <div class="order-totals">
+                  <div>
+                    <span>Payment Method</span>
+                    <span>${order.paymentMethod}</span>
+                  </div>
+                  <div>
+                    <span>Subtotal</span>
+                    <span>${formatMoney(order.subtotal || 0)}</span>
+                  </div>
+                  <div>
+                    <span>Shipping</span>
+                    <span>${formatMoney(order.shipping || 0)}</span>
+                  </div>
+                  <div class="grand-total">
+                    <span>Total</span>
+                    <span>${formatMoney(order.total || 0)}</span>
+                  </div>
+                </div>
+              </article>
+            `).join("");
+
+          } catch (e) {
+            ordersListEl.innerHTML = `<p class="empty-state">Error loading orders.</p>`;
+          }
+        }
+        
+        renderOrders();
+        setInterval(renderOrders, 2000);
       })();
     </script>
   </body>
